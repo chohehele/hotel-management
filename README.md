@@ -31,3 +31,24 @@ Stress Goals
 - I want to be able to reserve amenities for guests.
 4. Room service
 
+## Domain Modeling
+
+(Being updated)
+https://miro.com/app/board/uXjVOP31-OE=/
+
+![](project401uml.PNG)
+
+# Database Schema
+
+This will be asked by the manager and filled into the application for storage.
+
+Customer Info
+
+Name: STRING
+Phone: STRING
+Room Assigned: STRING
+Experience Score: NUMBER
+Active: BOOLEAN
+
+
+

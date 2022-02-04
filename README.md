@@ -30,4 +30,4 @@ Stress Goals
 3. Reserve the "amenities"
 - I want to be able to reserve amenities for guests.
 4. Room service
-5. 
+

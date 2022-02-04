@@ -45,9 +45,13 @@ This will be asked by the manager and filled into the application for storage.
 Customer Info
 
 Name: STRING
+
 Phone: STRING
+
 Room Assigned: STRING
+
 Experience Score: NUMBER
+
 Active: BOOLEAN
 
 

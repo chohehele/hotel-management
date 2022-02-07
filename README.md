@@ -39,6 +39,8 @@ Management system for a hotel.
 
 - run: `cd hotel-management` then: `npm install`
 
+`npm i express cors dotenv mongoose jwt bcrypt base-64 supertest`
+
 - repeat step two for **'helphotel-client'**
 
 ### How to Use

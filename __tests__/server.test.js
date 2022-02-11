@@ -1,145 +1,134 @@
 'use strict';
 
-const server = require('../lib/server.js');
+const { app } = require('../lib/server.js');
+const failTest = 'http://httpstat.us/500';
 const request = require('supertest');
-
-
-
-const express = require('express');
-const router = require('../lib/routes/login.js');
-const app = express();
-app.use(express.json());
-
-jest.mock('../lib/routes/login.js');
-const userService = require('../lib/routes/login.js');
-
-// basic proof of life test, should hit home route
-describe('Should hit home route', () => {
-    it('Going to /', (done) => {
-        request(server)
-        .get('/')
-        .expect(200, done)
-    })
-})
-
-const loginInfo = {
-    username: 'test1',
-    password: 'foo'
-}
+const { contentType } = require('express/lib/response');
 
 
 // Should be able to create an account
-describe('Should be able to create an account', () => {
+describe('Account Creation/Login', () => {
 
     it('Enter a username and password and create an account.', async () => {
         
-       const response = await request(app)
-       .post('/signup')
-       .send(loginInfo)
-       
-        expect(response.statusCode).toEqual(200);
-    })
-    // Should be able to create an account #2
-    it('Enter a username and password and create an account.', function(done) {        
-        request(app)
-        .post('/signup')
-        .auth('username', 'password')  
-        .expect(200,done)
-          
-        
+       const response = await request(app).post('/signup').send({username: 'test1', password: 'testpw'})
+       expect(response.password)
+       expect(response.statusCode).toEqual(200);
 
+            
     })
+
+    
+       // Should reject an incorrect account.
+        it('Enter wrong username and password, fail to log in.', async () =>  {
+            const response = await request(app).post('/signin').auth('unexpectedusername', 'wrongpassword') 
+            expect(response.statusCode).toEqual(403);    
+    
+           
+           
+        })
 
 })
 
-
-
-// Should be able to log into that account
-describe('Should be able to log into that account', () => {
-
-    it('Enter username and password, log in.', function(done)  {
-        request(app)
-        .post('/signin')
-        .auth('username', 'password')
-        
-        
-        .expect(200, done)
-             
-
-       
-       
-    })
-})
-
-let testGuest = {
-    name: 'testGuest',
-    score: '665',
-    meanNickName: 'testy',
-    leastFFood: 'testas toast',
-    checkedIn: true,
-    roomAssigned: 666
-}
 
 // Should be able to enter guest info in
-describe('Should be able to enter guest info in', () => {
 
-    it('Should be able to enter guest information.', function(done) {
-        request(app)
-        .post('/guest')
-        .send(testGuest)
-        
-        
-        .expect(200, done)
+describe('Guest testing', () => {
+
+    it('Should be able to enter guest information.', async () => {
+        let response = await request(app).post('/guest?name=testGuest&timesVisited=2&score=500&leastFFood=testastoast&checkedIn=true&meanNickname=testyfella')
+        expect(response.status).toEqual(200)
        
+    })
+    // Should retrieve guest information 
+    // expect('Content-Type', /json/)
+    it('Should retrieve guest information', async () => {
+        let response = await request(app).get('/guest')
+        console.log(response.text.id);
+        expect(response.status).toEqual(200)
+       
+    })
+
+    
+    // router.patch('/guest/:id', checkOutGuest);
+    it('Be able to check out a guest', async () => {
+        let response = await request(app).patch('/guest/1')
+        // console.log(JSON.parse(response.text));
+        // console.log(JSON.parse(response.text.checkedIn))
+        // console.log(response.text.checkedIn)
+        expect(response.status).toEqual(200)   
+    })
+
+ 
+})
+
+
+describe('Room testing', () => {
+
+    // Add A room
+    it('Add a room..', async () => {        
+        let response = await request(app).post('/room').send({bedSize: 'smol', dirty: false, occupied: false, ready: true})   
+        
+        expect(response.status).toEqual(200);
+        
+    })
+
+    // See what rooms router.get('/room', readRooms);
+    it('See what rooms are available.', async () => {
+        let response = await request(app).get('/room') 
+           
+        expect(response.status).toEqual(200);
+    })
+
+    // Clean a room router.put('/room/:id', cleanRoom);
+    it('Clean a room', async () => {
+        let response = await request(app).put('/room/1')  
+             
+        expect(response.status).toEqual(200);
+    })
+
+    // Turnover room router.patch('/room/:id', turnOverRoom);
+    it('Turnover room', async () => {
+        let response = await request(app).patch('/room/1')   
+          
+        expect(response.status).toEqual(200);
+    })
+
+
+    // Remove a room completely router.delete('/room/:id', removeRoom);
+    it('Delete a room completely', async () => {
+        let response = await request(app).delete('/room/1')   
+            
+        expect(response.status).toEqual(200);
+    })
+
+
+
+})
+
+describe('404 and 500 tests', () => {
+    it('404 test', async () => {        
+        let response = await request(app).get('/non-extant-route-10001')
+        expect(response.status).toEqual(404);
+    })
+
+
+    it('500 test', async () => {        
+        let response = await request(failTest).get('/')
+        expect(response.status).toEqual(500);
     })
 })
 
-// Should retrieve guest information
-describe('Should retrieve guest information', () => {
 
-    it('should do this.', function(done) {
-        request(app)
-        .get('/guest')
-        .expect('Content-Type', /json/)
-        .expect(200, done)
-
-       
+describe('Delete guest (saved for last)', () => {
+    // router.delete('/guest/:id', removeGuest);
+    it('Be able to delete a guest', async () => {
+        let response = await request(app).delete('/guest/1')
+    
+        expect(response.status).toEqual(200)   
     })
 })
 
-
-// Should be able to make a reservation for a future date
-describe('What the test do', () => {
-
-    it('should do this.', async () => {
-        
-
-       
-        expect('some response').toEqual('some response');
-    })
-})
-
-// Room will be unavailable for future date
-describe('What the test do', () => {
-
-    it('should do this.', async () => {
-        
-
-       
-        expect('some response').toEqual('some response');
-    })
-})
-
-// Should prioritize guests based on past stays
-describe('What the test do', () => {
-
-    it('should do this.', async () => {
-        
-
-       
-        expect('some response').toEqual('some response');
-    })
-})
 
 
 
